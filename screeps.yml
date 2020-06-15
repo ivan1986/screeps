@@ -1,0 +1,34 @@
+modules:
+  - name: main
+    file: main.js
+  - name: actionBuilder
+    file: actionBuilder.js
+  - name: actionHarvest
+    file: actionHarvest.js
+  - name: actionHarvestLD
+    file: actionHarvestLD.js
+  - name: actionLorry
+    file: actionLorry.js
+  - name: actionRepaireler
+    file: actionRepaireler.js
+  - name: actionTowerSupply
+    file: actionTowerSupply.js
+  - name: actionUpgrader
+    file: actionUpgrader.js
+  - name: actionWallRepair
+    file: actionWallRepair.js
+  - name: harvesterLDSettings
+    file: harvesterLDSettings.js
+  - name: noticeSettings
+    file: noticeSettings.js
+  - name: populationSettings
+    file: populationSettings.js
+  - name: proto.Creep
+    file: proto.Creep.js
+  - name: proto.Room
+    file: proto.Room.js
+  - name: proto.Spawn
+    file: proto.Spawn.js
+  - name: proto.Tower
+    file: proto.Tower.js
+
