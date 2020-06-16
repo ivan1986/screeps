@@ -45,9 +45,13 @@ module.exports = {
             harvester.run(creep);
         }
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
-        return Memory.population[spawn.room.name]['upgrader'] < 3;
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        return count < 1;
     },
-    prefix: function() {return 'Up';},
+    prefix: 'Up',
+    bodyTemplate: [MOVE,MOVE,CARRY,WORK],
 };

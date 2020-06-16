@@ -38,12 +38,19 @@ module.exports = {
         }
         creep.profileFinish();
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn) {
-        let walls = spawn.room.find(FIND_MY_STRUCTURES, {
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        if (count >= 1) {
+            return false;
+        }
+        let walls = spawn.room.find(FIND_STRUCTURES, {
             filter: (s) => (s.structureType === STRUCTURE_WALL || s.structureType === STRUCTURE_RAMPART)
         });
-        return walls.length && Memory.population[spawn.room.name]['repairWall'] < 1;
+        return walls.length;
     },
-    prefix: function() {return 'WR';},
+    prefix: 'WR',
+    bodyTemplate: [MOVE,CARRY,WORK,WORK],
 };

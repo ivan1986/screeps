@@ -108,8 +108,13 @@ module.exports = {
             }
         }
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        return spawn.room.controller.level > 1 && count < 5;
     },
-    prefix: function() {return 'HLD';},
+    prefix: 'HLD',
+    bodyTemplate: [WORK,MOVE,CARRY,MOVE],
 };

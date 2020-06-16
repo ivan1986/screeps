@@ -113,13 +113,19 @@ module.exports = {
             }
         }
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        if (count >= 2) {
+            return false;
+        }
         let storages = spawn.room.find(FIND_STRUCTURES, {
             filter: (s) => (s.structureType === STRUCTURE_STORAGE || s.structureType === STRUCTURE_CONTAINER)
         });
-        return storages.length && Memory.population[spawn.room.name]['lorry'] < _.min([storages.length, 2]);
+        return storages.length && count < _.min([storages.length, 2]);
     },
-    prefix: function() {return 'L';},
-
+    prefix: 'L',
+    bodyTemplate: [WORK,CARRY,CARRY,CARRY,MOVE],
 };

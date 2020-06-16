@@ -37,9 +37,13 @@ module.exports = {
         }
         creep.profileFinish();
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
-        return Memory.population[spawn.room.name]['repair'] < 1;
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        return count < 1;
     },
-    prefix: function() {return 'R';},
+    prefix: 'R',
+    bodyTemplate: [MOVE,CARRY,WORK,WORK],
 };

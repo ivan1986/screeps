@@ -10,96 +10,6 @@ var actions = {
 };
 
 /**
- * удаление крипов по роли
- * @param role
- * @constructor
- */
-StructureSpawn.prototype.DellCreeps = function (role) {
-    let nums = 0;
-    for(let name in Game.creeps){
-        if(Game.creeps[name].memory.role === role){
-            Game.creeps[name].suicide();
-            nums++;
-        }
-    }
-    console.log('[notice] -> deleting '+ nums +' creep(s)');
-    return '';
-};
-
-/**
- * добавить лимит
- * @param role string
- * @param newLimit int
- */
-StructureSpawn.prototype.addLimit = function (role,newLimit) {
-    if(this.population[role] !== undefined){
-        this.population[role]['limit'] = newLimit;
-        this.GetPopulation();
-    }
-    else{
-        console.log('[notice]-> unknown role '+role);
-    }
-    return '';
-};
-
-/**
- * убить всех и вся, зачистить память. По сути, сделать ресет крипам. Хард ресет.
- * @returns {string}
- */
-StructureSpawn.prototype.killEmAll = function () {
-
-    let nums = 0;
-    for(let name in Game.creeps){
-        Game.creeps[name].suicide();
-        nums++;
-    }
-    console.log('[notice] -> deleting '+ nums +' creep(s)');
-    this.cleanMemoryPopulation();
-    this.GetPopulation();
-    return '';
-};
-
-/**
- * статистика крипов со спавна
- * @returns {string}
- * @constructor
- */
-StructureSpawn.prototype.GetPopulation = function () {
-
-    let total = 0;
-    if(Memory.population !== undefined){
-        for(let role in Memory.population[this.name]){
-            let max;
-            if(this.population !== undefined){
-                if(this.population[role] !== undefined && this.population[role]['limit'] !== undefined){
-                    max = this.population[role]['limit'];
-                }
-                else{
-                    max = '?';
-                }
-            }
-            console.log('[population]-> ', role, ': ', Memory.population[this.name][role] + '/' + max);
-            total ++;
-        }
-    }
-
-    if(total === 0){
-        console.log('[notice]-> population is empty!');
-    }
-    return '';
-};
-
-/**
- * Расчистить память счетчиков созданных крипов
- */
-StructureSpawn.prototype.cleanMemoryPopulation = function () {
-    if(Memory.population !== undefined){
-        delete Memory.population;
-    }
-    console.log('Done');
-};
-
-/**
  * контроль рождаемости крипов
  */
 StructureSpawn.prototype.populationControl = function () {
@@ -115,7 +25,7 @@ StructureSpawn.prototype.populationControl = function () {
         Memory.population[this.room.name] = {};
     }
 
-    for (let role in this.population) {
+    for (let role in actions) {
         if (Memory.population[this.room.name][role] === undefined) {
             Memory.population[this.room.name][role] = 0;
         }
@@ -152,14 +62,10 @@ StructureSpawn.prototype.populationControl = function () {
     }
 
     if(!this.spawning){
-        for (let role in this.population) {
-            if (actions[role].needBuild(this)) {
-                this.creepCreate(role);
-                break;
-            }
-            if (Memory.population[this.room.name][role] < this.population[role]['limit']) {
-                this.creepCreate(role);
-                break;
+        for (let role in actions) {
+            if (actions[role].needBuild(this, Memory.population[this.room.name][role])) {
+                 this.creepCreate(role);
+                 break;
             }
         }
     }
@@ -172,35 +78,27 @@ StructureSpawn.prototype.populationControl = function () {
  */
 StructureSpawn.prototype.constructCreepBody = function (role) {
     let returnBody = [];
-    if(this.population[role] && this.population[role]['body']){
+    let totalEnergy = this.room.energyAvailable;
 
+     for(;;) {
+         for (let bodyPart in actions[role].bodyTemplate) {
+             totalEnergy -= BODYPART_COST[actions[role].bodyTemplate[bodyPart]];
 
-        let totalEnergy = this.room.energyAvailable;
+             if (totalEnergy >= 0) {
+                 returnBody.push(actions[role].bodyTemplate[bodyPart]);
+             }
+         }
 
-        for(;;){
-            for(let bodyPart in this.population[role]['body']){
-                totalEnergy -= BODYPART_COST[this.population[role]['body'][bodyPart]];
+         if (totalEnergy <= 0) {
+             if (totalEnergy < 0) {
+                 returnBody.pop();
+             }
+             break;
+         }
+     }
 
-                if(totalEnergy >= 0){
-                    returnBody[returnBody.length] = this.population[role]['body'][bodyPart];
-                }
-            }
-
-            if(totalEnergy <= 0){
-                if(totalEnergy < 0){
-                    returnBody.pop();
-                }
-                break;
-            }
-        }
-
-        if(returnBody.length < this.population[role]['body'].length){
-            returnBody = this.population[role]['body'];
-        }
-    }
-    else{
-        console.log('[creepBody]-> role "'+role+'" is undefined, using defailt [MOVE,CARRY,WORK]');
-        returnBody = [MOVE,CARRY,WORK];
+    if(returnBody.length < actions[role].bodyTemplate.length){
+        returnBody = actions[role].bodyTemplate;
     }
 
     return returnBody;
@@ -215,16 +113,12 @@ StructureSpawn.prototype.creepCreate = function (role) {
         console.log(this.spawning);
         return;
     }
-    if(!this.population[role] || !this.population[role]['body']) {
-        console.log('[create]-> unknown role "' + role +'". Creation aborted');
-        return;
-    }
     let creepBody = this.constructCreepBody(role);
     let pref = new Date();
-    let tmp = this.canCreateCreep(creepBody, actions[role].prefix() + '_'+ pref.getTime());
+    let tmp = this.canCreateCreep(creepBody, actions[role].prefix + '_'+ pref.getTime());
 
     if( tmp === OK){
-        let cName = this.createCreep(creepBody,actions[role].prefix() + '_'+pref.getTime(),{'role':role});
+        let cName = this.createCreep(creepBody,actions[role].prefix + '_'+pref.getTime(),{'role':role});
 
         if(cName !== undefined && _.isString(cName)){
             if( Memory.noticeSettings !== undefined &&  Memory.noticeSettings['createNotice'] === true){

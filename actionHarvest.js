@@ -80,20 +80,31 @@ module.exports = {
             if (structure === undefined) {
                 structure = creep.room.storage;
             }
-            if (structure !== undefined) {
+            if (structure) {
                 if (creep.transfer(structure, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(structure);
                 }
-            }
-            else{
-                console.log('[notice] -> '+creep.id+' not found empty container for energy');
+            } else {
+                // Совсем девать некуда - помогаем строителям
+                const target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+                if(target) {
+                    if (creep.build(target) === ERR_NOT_IN_RANGE) {
+                        creep.moveTo(target);
+                    }
+                } else {
+                    console.log('[notice] -> ' + creep.id + ' not found empty container for energy');
+                }
             }
             creep.profileFinish();
         }
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
         return spawn.room.getFreeSourceId() !== null;
     },
-    prefix: function() {return 'H';},
+    prefix: 'H',
+    bodyTemplate: [WORK,MOVE,CARRY,MOVE],
 };

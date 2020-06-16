@@ -14,7 +14,6 @@ module.exports = {
             return;
         }
 
-        //var carry = _.sum(creep.carry);
         let carry = creep.store.getUsedCapacity(RESOURCE_ENERGY);
 
         if(carry < creep.store.getCapacity() && (creep.memory.working === false || creep.memory.working === undefined)){
@@ -51,11 +50,13 @@ module.exports = {
         }
         creep.profileFinish();
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
-        let str = spawn.room.find(FIND_CONSTRUCTION_SITES);
-        let builders = str.length > 5 ? 3 : 1;
-        return Memory.population[spawn.room.name]['builder'] < builders;
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count){
+        return false;
     },
-    prefix: function() {return 'B';},
+    prefix: 'B',
+    bodyTemplate: [MOVE,CARRY,WORK,WORK],
 };

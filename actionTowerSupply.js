@@ -42,12 +42,19 @@ module.exports = {
         }
 
     },
-    /** @param spawn {Spawn} */
-    needBuild:function(spawn){
+    /**
+     * @param spawn {Spawn}
+     * @param count {number}
+     */
+    needBuild:function(spawn, count) {
+        if (count >= 1) {
+            return false;
+        }
         let towers = spawn.room.find(FIND_MY_STRUCTURES, {
             filter: (s) => s.structureType === STRUCTURE_TOWER
         });
         return towers.length && Memory.population[spawn.room.name]['TowerSupply'] < 1;
     },
-    prefix: function() {return 'TS';},
+    prefix: 'TS',
+    bodyTemplate: [MOVE,CARRY,WORK,WORK],
 };

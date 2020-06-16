@@ -4,7 +4,6 @@ require('proto.Creep');
 require('proto.Tower');
 
 require('harvesterLDSettings'); //настройки харвестеров на длинные дистанции
-require('populationSettings'); // настройки популяции
 
 module.exports.loop = function () {
 

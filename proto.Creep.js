@@ -20,14 +20,6 @@ Creep.prototype.mineEnergy = function () {
         }
     }
 
-    /*if(!source && this.memFlags.length>0){
-        if(this.moveTo(Game.flags[this.memFlags[0]]) === OK){
-            this.say('traveling');
-            source = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-        }
-        return false;
-    }*/
-
     let actResult = this.harvest(source);
     if ( actResult === ERR_NOT_IN_RANGE) {
         this.moveTo(source);
@@ -107,7 +99,9 @@ Creep.prototype.doRepair = function(){
 Creep.prototype.doWallsRampartsRepair = function(){
     let targets = [];
 
-    if(this.memory.wallID && Game.getObjectById(this.memory.wallID).hits < Game.getObjectById(this.memory.wallID).hitsMax/2){
+    if(this.memory.wallID && Game.getObjectById(this.memory.wallID)
+        && Game.getObjectById(this.memory.wallID).hits < Game.getObjectById(this.memory.wallID).hitsMax/2)
+    {
         targets[0] = Game.getObjectById(this.memory.wallID);
     }
     else{
@@ -136,7 +130,18 @@ Creep.prototype.doWallsRampartsRepair = function(){
  */
 Creep.prototype.doBuild = function () {
 
-    const target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+    // фикс постройки rampart - если не починить сразу, то умрет за 100 тиков
+    // бот починки может быть занят в другом конце комнаты и не прийти
+    let target = this.pos.findInRange(FIND_STRUCTURES, 3, {
+        filter: object => object.structureType === STRUCTURE_RAMPART
+            && object.hits < 1000
+    });
+    if (target.length) {
+        this.repair(target[0]);
+        return true;
+    }
+
+    target = this.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
     if (target) {
         if (this.build(target) === ERR_NOT_IN_RANGE) {
             this.moveTo(target);
